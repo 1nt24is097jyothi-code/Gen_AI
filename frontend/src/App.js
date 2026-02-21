@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const BASE_URL = "https://genai-production-d6e6.up.railway.app";
+const API_URL = "https://genai-production-d6e6.up.railway.app/chat";
 
 function App() {
   const [input, setInput] = useState("");
@@ -18,19 +18,19 @@ function App() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/error`, {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ error: userMessage })
+        body: JSON.stringify({ message: userMessage })
       });
 
       const data = await res.json();
 
       setMessages(prev => [
         ...prev,
-        { sender: "bot", text: data.solution || "No solution found" }
+        { sender: "bot", text: data.reply }
       ]);
     } catch (err) {
       setMessages(prev => [
@@ -51,7 +51,7 @@ function App() {
         padding: "20px"
       }}
     >
-      <h2 style={{ textAlign: "center" }}>🤖 Troubleshooting Bot</h2>
+      <h2 style={{ textAlign: "center" }}>🤖 GenAI Troubleshooting Bot</h2>
 
       {/* Chat Box */}
       <div
@@ -97,7 +97,7 @@ function App() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleSend()}
-          placeholder="Type your error message..."
+          placeholder="Type your message..."
           style={{
             flex: 1,
             padding: "10px",
