@@ -1,30 +1,46 @@
+const express = require("express");
+const cors = require("cors");
+
+const app = express();   // ✅ app is defined here
+
+app.use(cors());
+app.use(express.json());
+
+// Root route
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully 🚀");
+});
+
+// Chat route
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
-  const msg = message.toLowerCase();
 
-  let solution = "❌ Sorry, I couldn't identify this error.";
+  // simple AI-like logic (demo solution engine)
+  let solution = "";
 
-  if (msg.includes("404")) {
-    solution = "✅ 404 Error: API route or page not found. Check your backend URL, route path, and deployment.";
+  if (message.toLowerCase().includes("404")) {
+    solution = "404 Error means the route/API is not found. Check backend route and API URL.";
   } 
-  else if (msg.includes("500")) {
-    solution = "✅ 500 Error: Internal server error. Check backend logs, syntax errors, and server crash.";
+  else if (message.toLowerCase().includes("cors")) {
+    solution = "CORS error: Add app.use(cors()) in backend and redeploy.";
   }
-  else if (msg.includes("cors")) {
-    solution = "✅ CORS Error: Enable CORS in backend using app.use(cors()).";
+  else if (message.toLowerCase().includes("network")) {
+    solution = "Network error: Check backend deployment and BASE_URL.";
   }
-  else if (msg.includes("netlify")) {
-    solution = "✅ Netlify Error: Check build logs, environment variables, and build command.";
+  else if (message.toLowerCase().includes("database")) {
+    solution = "Database error: Check DB connection string and server logs.";
   }
-  else if (msg.includes("railway")) {
-    solution = "✅ Railway Error: Check service logs and deployed routes.";
-  }
-  else if (msg.includes("fetch")) {
-    solution = "✅ Fetch Error: Check API URL, method type, headers, and backend route.";
-  }
-  else if (msg.includes("timeout")) {
-    solution = "✅ Timeout Error: Server taking too long. Optimize backend or increase timeout.";
+  else {
+    solution = "General fix: Check server logs, API routes, and frontend fetch URL.";
   }
 
-  res.json({ solution });
+  res.json({
+    reply: solution
+  });
+});
+
+// Server start
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
