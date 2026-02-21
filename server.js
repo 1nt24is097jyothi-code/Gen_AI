@@ -1,39 +1,32 @@
-// ===== IMPORTS =====
 const express = require("express");
 const cors = require("cors");
 
-// ===== APP SETUP =====
 const app = express();
 
-// ===== MIDDLEWARE =====
-app.use(cors()); // allow frontend requests
-app.use(express.json()); // read JSON body
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// ===== ROUTES =====
-
-// Home route (IMPORTANT → fixes "Cannot GET /")
+// Root route
 app.get("/", (req, res) => {
   res.send("Backend is running successfully 🚀");
 });
 
-// Test API route
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+// ✅ API route for error handling
+app.post("/api/error", (req, res) => {
+  const { error } = req.body;
+
+  // Basic solution message (you can expand logic later)
+  const solution = "Try restarting the service or reinstall dependencies.";
+
+  res.json({ solution });
 });
 
-// Example POST route
-app.post("/api/chat", (req, res) => {
-  const { message } = req.body;
-
-  res.json({
-    reply: `You said: ${message}`,
-  });
+// Catch-all route to avoid 404 errors for undefined endpoints
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
-// ===== START SERVER =====
-// Railway/Render automatically provide PORT
+// Server listen
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

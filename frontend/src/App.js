@@ -1,48 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
+const BASE_URL = "https://genai-production-d6e6.up.railway.app";
 
 function App() {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Add user message
-    setMessages(prev => [...prev, { sender: 'user', text: input }]);
+    const userMessage = input;
 
-    // Send to backend
-    const res = await fetch('/api/error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: input })
-    });
-    const data = await res.json();
+    // show user message
+    setMessages(prev => [...prev, { sender: "user", text: userMessage }]);
+    setInput("");
+    setLoading(true);
 
-    // Add bot response
-    setMessages(prev => [...prev, { sender: 'bot', text: data.solution }]);
+    try {
+      const res = await fetch(`${BASE_URL}/api/error`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ error: userMessage })
+      });
 
-    // Clear input
-    setInput('');
+      const data = await res.json();
+
+      setMessages(prev => [
+        ...prev,
+        { sender: "bot", text: data.solution || "No solution found" }
+      ]);
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        { sender: "bot", text: "❌ Backend not reachable" }
+      ]);
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '600px', margin: 'auto' }}>
-      <h1>Troubleshooting Bot</h1>
-      <div style={{ border: '1px solid #ccc', padding: '10px', height: '300px', overflowY: 'auto', marginBottom: '10px' }}>
+    <div
+      style={{
+        fontFamily: "Arial",
+        maxWidth: "600px",
+        margin: "40px auto",
+        padding: "20px"
+      }}
+    >
+      <h2 style={{ textAlign: "center" }}>🤖 Troubleshooting Bot</h2>
+
+      {/* Chat Box */}
+      <div
+        style={{
+          border: "1px solid #ccc",
+          borderRadius: "10px",
+          height: "350px",
+          overflowY: "auto",
+          padding: "10px",
+          marginBottom: "10px",
+          background: "#f9f9f9"
+        }}
+      >
         {messages.map((msg, i) => (
-          <div key={i} style={{ textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
-            <p><strong>{msg.sender}:</strong> {msg.text}</p>
+          <div
+            key={i}
+            style={{
+              textAlign: msg.sender === "user" ? "right" : "left",
+              margin: "8px 0"
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                padding: "8px 12px",
+                borderRadius: "15px",
+                background:
+                  msg.sender === "user" ? "#007bff" : "#e5e5ea",
+                color: msg.sender === "user" ? "white" : "black"
+              }}
+            >
+              {msg.text}
+            </span>
           </div>
         ))}
+
+        {loading && <p>Typing...</p>}
       </div>
-      <input
-        type="text"
-        value={input}
-        onChange={e => setInput(e.target.value)}
-        style={{ width: '80%', padding: '10px' }}
-        placeholder="Type your error message..."
-      />
-      <button onClick={handleSend} style={{ padding: '10px', marginLeft: '10px' }}>Send</button>
+
+      {/* Input */}
+      <div style={{ display: "flex" }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSend()}
+          placeholder="Type your error message..."
+          style={{
+            flex: 1,
+            padding: "10px",
+            borderRadius: "5px",
+            border: "1px solid #ccc"
+          }}
+        />
+
+        <button
+          onClick={handleSend}
+          style={{
+            marginLeft: "10px",
+            padding: "10px 15px",
+            borderRadius: "5px",
+            background: "#28a745",
+            color: "white",
+            border: "none"
+          }}
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 }
