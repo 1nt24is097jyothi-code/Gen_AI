@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const API_URL = "https://genai-production-d6e6.up.railway.app/chat";
+const BASE_URL = "https://genai-production-d6e6.up.railway.app"; // your backend
 
 function App() {
   const [input, setInput] = useState("");
@@ -18,7 +18,7 @@ function App() {
     setLoading(true);
 
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(`${BASE_URL}/chat`, {   // ✅ FIXED ROUTE
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -30,7 +30,7 @@ function App() {
 
       setMessages(prev => [
         ...prev,
-        { sender: "bot", text: data.reply }
+        { sender: "bot", text: data.solution || "No solution found" }
       ]);
     } catch (err) {
       setMessages(prev => [
@@ -97,7 +97,7 @@ function App() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleSend()}
-          placeholder="Type your message..."
+          placeholder="Type your error message..."
           style={{
             flex: 1,
             padding: "10px",
